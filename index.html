@@ -1,0 +1,578 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Discover movies, explore genres and find your next favorite on StreamZone.">
+  <title>StreamZone — Discover Movies & Shows</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --bg: #0b0b10;
+      --panel: #171720;
+      --muted: #aaa9ba;
+      --purple: #9147ff;
+      --border: #292936;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      padding: 15px 5%;
+      background: rgba(13, 13, 19, .97);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .logo span { color: var(--purple); }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    nav a {
+      color: #eee;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a:hover { color: #bb91ff; }
+
+    .search-wrap {
+      flex: 1;
+      margin-left: auto;
+      max-width: 340px;
+    }
+
+    #search {
+      width: 100%;
+      padding: 12px 14px;
+      color: white;
+      background: #191922;
+      border: 1px solid #383846;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #search:focus { border-color: var(--purple); }
+
+    .login, .primary {
+      border: 0;
+      border-radius: 7px;
+      padding: 12px 17px;
+      color: white;
+      background: var(--purple);
+      font-weight: 700;
+    }
+
+    .hero {
+      min-height: 350px;
+      display: flex;
+      align-items: center;
+      padding: 55px 7%;
+      background:
+        linear-gradient(90deg, #11111bf5 0%, #11111bc9 48%, #11111b24 100%),
+        url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1800&q=85")
+        center 45% / cover;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-content { max-width: 540px; }
+
+    .eyebrow {
+      color: #bc8dff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 14px 0;
+      font-size: clamp(35px, 5vw, 57px);
+      line-height: 1.08;
+    }
+
+    .metadata {
+      color: #d3d1df;
+      font-size: 14px;
+    }
+
+    .hero p {
+      max-width: 490px;
+      color: #dddce6;
+      line-height: 1.7;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 23px;
+    }
+
+    .secondary {
+      padding: 12px 17px;
+      color: white;
+      background: #292936;
+      border: 1px solid #414150;
+      border-radius: 7px;
+    }
+
+    main { padding: 28px 5%; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 23px;
+    }
+
+    .section-heading a {
+      color: #b98bff;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 0 0 23px;
+    }
+
+    .filter {
+      padding: 9px 15px;
+      color: #dedce8;
+      background: #191922;
+      border: 1px solid #30303e;
+      border-radius: 20px;
+    }
+
+    .filter.active, .filter:hover {
+      color: white;
+      background: #7135ca;
+      border-color: #9147ff;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 19px;
+      margin-bottom: 36px;
+    }
+
+    .movie-card {
+      min-width: 0;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid #282834;
+      border-radius: 10px;
+      transition: transform .2s, border-color .2s;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-4px);
+      border-color: #7950b7;
+    }
+
+    .poster {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #4a286a, #171722);
+    }
+
+    .poster img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform .3s;
+    }
+
+    .movie-card:hover .poster img { transform: scale(1.05); }
+
+    .rating {
+      position: absolute;
+      top: 9px;
+      left: 9px;
+      padding: 5px 7px;
+      color: white;
+      background: #111b;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+
+    .movie-info { padding: 12px; }
+
+    .movie-info h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .movie-info p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .watch-button {
+      width: 100%;
+      padding: 9px;
+      color: white;
+      background: #29243a;
+      border: 1px solid #45355e;
+      border-radius: 6px;
+    }
+
+    .watch-button:hover { background: #6033a1; }
+
+    #empty {
+      display: none;
+      padding: 30px 0;
+      color: var(--muted);
+    }
+
+    .player-box {
+      display: none;
+      margin: 10px 0 35px;
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .player-box video {
+      display: block;
+      width: 100%;
+      max-height: 480px;
+      background: black;
+    }
+
+    .close-button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      color: white;
+      background: #30303d;
+      border: 0;
+      border-radius: 6px;
+    }
+
+    footer {
+      padding: 28px 5%;
+      color: var(--muted);
+      background: #111118;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 1050px) {
+      .movie-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      header { gap: 15px; }
+    }
+
+    @media (max-width: 760px) {
+      header { flex-wrap: wrap; }
+      nav { order: 3; width: 100%; justify-content: space-between; }
+      .search-wrap { max-width: none; order: 2; }
+      .login { margin-left: auto; }
+      .hero { min-height: 330px; padding: 40px 6%; }
+      main { padding: 24px 4%; }
+      .movie-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+      .poster { height: 180px; }
+    }
+
+    @media (max-width: 460px) {
+      .movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .poster { height: 205px; }
+      .hero h1 { font-size: 36px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a class="logo" href="#" style="text-decoration:none;color:white">
+      Stream<span>Zone</span>
+    </a>
+
+    <nav>
+      <a href="#">Home</a>
+      <a href="#movies-section">Movies</a>
+      <a href="#shows-section">TV Shows</a>
+      <a href="#genres">Genres</a>
+    </nav>
+
+    <div class="search-wrap">
+      <input id="search" type="search"
+        placeholder="Search movies and shows..."
+        aria-label="Search movies and shows">
+    </div>
+
+    <button class="login" id="loginButton">Sign In</button>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="eyebrow">Your next movie night starts here</div>
+      <h1>Discover a world of stories.</h1>
+      <div class="metadata">Movies · TV Shows · New Discoveries</div>
+      <p>
+        Explore titles, discover new favorites, and find out where
+        to watch. Your entertainment discovery hub starts here.
+      </p>
+      <div class="actions">
+        <button class="primary" id="exploreButton">Explore Movies →</button>
+        <button class="secondary" id="featuredButton">Featured Title</button>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section id="genres">
+      <div class="section-heading">
+        <h2>Explore by Genre</h2>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="filter active" data-genre="all">All</button>
+        <button class="filter" data-genre="Action">Action</button>
+        <button class="filter" data-genre="Comedy">Comedy</button>
+        <button class="filter" data-genre="Drama">Drama</button>
+        <button class="filter" data-genre="Sci-Fi">Sci-Fi</button>
+        <button class="filter" data-genre="Documentary">Documentary</button>
+      </div>
+    </section>
+
+    <section id="movies-section">
+      <div class="section-heading">
+        <h2>Popular Discoveries</h2>
+        <a href="#movies-section" id="resetLink">View All →</a>
+      </div>
+
+      <div class="movie-grid" id="movieGrid"></div>
+      <p id="empty">No titles found. Try a different search or genre.</p>
+    </section>
+
+    <section id="shows-section">
+      <div class="section-heading">
+        <h2>Explore TV Shows</h2>
+      </div>
+      <p style="color:#aaa9ba;line-height:1.7">
+        TV show listings will be added in our next development step.
+      </p>
+    </section>
+
+    <section class="player-box" id="playerBox">
+      <h2 id="playerTitle">Video preview</h2>
+      <p style="color:#aaa9ba">
+        Demonstration footage only. This is not the full movie.
+      </p>
+
+      <video id="video" controls playsinline preload="none">
+        <source
+          src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+          type="video/mp4">
+        Your browser does not support this video.
+      </video>
+
+      <button class="close-button" id="closePlayer">Close Player</button>
+    </section>
+  </main>
+
+  <footer>
+    <strong style="color:white">StreamZone</strong><br>
+    Discover movies and shows. Streaming availability varies by title
+    and region.<br>
+    This prototype uses sample listings and demonstration footage.
+    We will add authorized watch links and real movie data in later steps.
+  </footer>
+
+  <script>
+    
+const grid = document.getElementById("movieGrid");
+const search = document.getElementById("search");
+const empty = document.getElementById("empty");
+
+let catalog = [];
+let selectedGenre = "all";
+
+function renderMovies() {
+  const query = search.value.trim().toLowerCase();
+
+  const results = catalog.filter(movie => {
+    const matchesSearch =
+      movie.title.toLowerCase().includes(query) ||
+      movie.genre.toLowerCase().includes(query) ||
+      String(movie.year).includes(query);
+
+    const matchesGenre =
+      selectedGenre === "all" ||
+      movie.genre === selectedGenre;
+
+    return matchesSearch && matchesGenre;
+  });
+
+  grid.replaceChildren();
+  empty.style.display = results.length ? "none" : "block";
+
+  results.forEach(movie => {
+    const card = document.createElement("article");
+    card.className = "movie-card";
+
+    const poster = document.createElement("div");
+    poster.className = "poster";
+
+    const img = document.createElement("img");
+    img.src = `https://images.unsplash.com/${movie.image}?auto=format&fit=crop&w=500&q=80`;
+    img.alt = movie.title;
+    img.loading = "lazy";
+
+    const rating = document.createElement("span");
+    rating.className = "rating";
+    rating.textContent = "★ " + movie.rating;
+
+    poster.append(img, rating);
+
+    const info = document.createElement("div");
+    info.className = "movie-info";
+
+    const title = document.createElement("h3");
+    title.textContent = movie.title;
+
+    const metadata = document.createElement("p");
+    metadata.textContent = `${movie.year} · ${movie.genre}`;
+
+    const button = document.createElement("button");
+    button.className = "watch-button";
+    button.textContent = "Watch Demo";
+    button.addEventListener("click", () => openPlayer(movie.title));
+
+    info.append(title, metadata, button);
+    card.append(poster, info);
+    grid.appendChild(card);
+  });
+}
+
+async function loadMovies() {
+  try {
+    const response = await fetch("/api/movies");
+
+    if (!response.ok) {
+      throw new Error("Unable to load movies");
+    }
+
+    const data = await response.json();
+    catalog = data.movies;
+    renderMovies();
+  } catch (error) {
+    console.error("Movie loading failed:", error);
+    grid.innerHTML = "<p>Unable to load movies. Please try again.</p>";
+  }
+}
+
+function openPlayer(title) {
+  const box = document.getElementById("playerBox");
+  const video = document.getElementById("video");
+
+  document.getElementById("playerTitle").textContent =
+    "Preview: " + title;
+
+  box.style.display = "block";
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  video.pause();
+  video.currentTime = 0;
+}
+
+document.getElementById("closePlayer").addEventListener("click", () => {
+  const video = document.getElementById("video");
+  video.pause();
+  document.getElementById("playerBox").style.display = "none";
+});
+
+document.getElementById("exploreButton").addEventListener("click", () => {
+  document.getElementById("movies-section").scrollIntoView({
+    behavior: "smooth"
+  });
+});
+
+document.getElementById("featuredButton").addEventListener("click", () => {
+  openPlayer("Featured Demo");
+});
+
+document.getElementById("resetLink").addEventListener("click", () => {
+  search.value = "";
+  selectedGenre = "all";
+
+  document.querySelectorAll(".filter").forEach(button => {
+    button.classList.toggle("active", button.dataset.genre === "all");
+  });
+
+  renderMovies();
+});
+
+document.getElementById("loginButton").addEventListener("click", () => {
+  alert("User accounts will be added in a later development step.");
+});
+
+document.querySelectorAll(".filter").forEach(button => {
+  button.addEventListener("click", () => {
+    selectedGenre = button.dataset.genre;
+
+    document.querySelectorAll(".filter").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
+
+    renderMovies();
+  });
+});
+
+search.addEventListener("input", renderMovies);
+
+loadMovies();
+
+       
+        
+      
+       
+    
+
+     
+    
+  </script>
+</body>
+</html>
